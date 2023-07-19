@@ -1,8 +1,10 @@
 import nmap # Research done by Noor Shaheed 07/16/2023
+import subprocess
+import platform
 
 def scan_network_devices(target_ip):
     nm = nmap.PortScanner()
-    nm.scan(target_ip, arguments='-O -p 1-1000')  # Scan ports 1-1000 (modify as needed)
+    nm.scan(target_ip, arguments='-O')  # Port scanning removed
     device_info = []
 
     for host in nm.all_hosts():
@@ -18,20 +20,49 @@ def scan_network_devices(target_ip):
                 'OS Generation': os_gen
             })
 
-        if nm[host].has_tcp(22):  # Check if port 22 (SSH) is open
-            state = nm[host]['tcp'][22]['state']
-            device_info[-1]['SSH Port'] = state
-
-        if nm[host].has_tcp(80):  # Check if port 80 (HTTP) is open
-            state = nm[host]['tcp'][80]['state']
-            device_info[-1]['HTTP Port'] = state
-
-        # Add more port checks as needed
-
     return device_info
 
+def execute_command(command):
+    try:
+        output = subprocess.check_output(command, shell=True, universal_newlines=True)
+        return output
+    except subprocess.CalledProcessError:
+        return "Command execution failed."
+
+def ping_host(target_ip):
+    system_type = platform.system()
+    if system_type == 'Windows':
+        command = f"ping -n 4 {target_ip}"
+    else:
+        command = f"ping -c 4 {target_ip}"
+    return execute_command(command)
+
+def traceroute_host(target_ip):
+    system_type = platform.system()
+    if system_type == 'Windows':
+        command = f"tracert {target_ip}"
+    else:
+        command = f"traceroute {target_ip}"
+    return execute_command(command)
+
+def get_network_interfaces():
+    system_type = platform.system()
+    if system_type == 'Windows':
+        command = "ipconfig"
+    else:
+        command = "ifconfig"
+    return execute_command(command)
+
+def get_arp_table():
+    system_type = platform.system()
+    if system_type == 'Windows':
+        command = "arp -a"
+    else:
+        command = "arp"
+    return execute_command(command)
+
 # Example usage
-target_ip = input('Enter an IP address:') # Replace with your router/firewall IP address
+target_ip = input('Enter an IP address:')  # Replace with your router/firewall IP address
 results = scan_network_devices(target_ip)
 
 if results:
@@ -41,11 +72,26 @@ if results:
         print(f"Vendor: {device['Vendor']}")
         print(f"Operating System: {device['Operating System']}")
         print(f"OS Generation: {device['OS Generation']}")
-        if 'SSH Port' in device:
-            print(f"SSH Port: {device['SSH Port']}")
-        if 'HTTP Port' in device:
-            print(f"HTTP Port: {device['HTTP Port']}")
-        # Add more port details as needed
         print('---')
 else:
     print("No devices found.")
+
+# Ping test
+ping_output = ping_host(target_ip)
+print("Ping Test:")
+print(ping_output)
+
+# Traceroute test
+traceroute_output = traceroute_host(target_ip)
+print("Traceroute:")
+print(traceroute_output)
+
+# Network Interfaces
+network_interfaces_output = get_network_interfaces()
+print("Network Interfaces:")
+print(network_interfaces_output)
+
+# ARP Table
+arp_table_output = get_arp_table()
+print("ARP Table:")
+print(arp_table_output)
