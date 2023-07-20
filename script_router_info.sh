@@ -54,7 +54,7 @@ echo "Network Interfaces: (No output in this environment)"
 
 # ARP Table
 get_arp_table
-echo "ARP Table:" 
+echo "ARP Table: (No output in this environment)"
 
 # IPERF Speed Test
 echo "Enter the IP address of the iperf server:"
