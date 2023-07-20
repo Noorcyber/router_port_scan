@@ -1,90 +1,88 @@
 #!/bin/sh
-import subprocess
-import platform
 
-def execute_command(command):
-    try:
-        output = subprocess.check_output(command, shell=True, universal_newlines=True)
-        return output
-    except subprocess.CalledProcessError:
-        return "Command execution failed."
+ping_host() {
+    if [ "$(uname)" = "Darwin" ]; then
+        ping -c 4 "$1"
+    else
+        ping -n 4 "$1"
+    fi
+}
 
-def ping_host(target_ip):
-    system_type = platform.system()
-    if system_type == 'Windows':
-        command = f"ping -n 4 {target_ip}"
-    else:
-        command = f"ping -c 4 {target_ip}"
-    return execute_command(command)
+traceroute_host() {
+    if [ "$(uname)" = "Darwin" ]; then
+        traceroute "$1"
+    else
+        traceroute -m 4 "$1"
+    fi
+}
 
-def traceroute_host(target_ip):
-    system_type = platform.system()
-    if system_type == 'Windows':
-        command = f"tracert {target_ip}"
-    else:
-        command = f"traceroute {target_ip}"
-    return execute_command(command)
+get_network_interfaces() {
+    if [ "$(uname)" = "Darwin" ]; then
+        ifconfig
+    else
+        ipconfig
+    fi
+}
 
-def get_network_interfaces():
-    system_type = platform.system()
-    if system_type == 'Windows':
-        command = "ipconfig"
-    else:
-        command = "ifconfig"
-    return execute_command(command)
+get_arp_table() {
+    if [ "$(uname)" = "Darwin" ]; then
+        arp -a
+    else
+        arp
+    fi
+}
 
-def get_arp_table():
-    system_type = platform.system()
-    if system_type == 'Windows':
-        command = "arp -a"
-    else:
-        command = "arp"
-    return execute_command(command)
+iperf_speed_test() {
+    iperf3 -R -c "$1" -P 16
+}
 
-def iperf_speed_test(server_ip):
-    command = f"iperf3 -R -c {server_ip} -P 16"
-    return execute_command(command)
-
-def ping_virtual_clients(router_ip, virtual_clients):
-    ping_results = {}
-    for client_ip in virtual_clients:
-        ping_output = ping_host(client_ip)
-        ping_results[client_ip] = ping_output
-    return ping_results
+ping_virtual_clients() {
+    router_ip="$1"
+    shift
+    ping_results=""
+    for client_ip in "$@"; do
+        ping_output=$(ping_host "$client_ip")
+        ping_results="${ping_results}\n${client_ip}: ${ping_output}"
+    done
+    echo "$ping_results"
+}
 
 # Example usage
-target_ip = input('Enter an IP address:')  # Replace with your router/firewall IP address
+echo "Enter an IP address:" 
+read -r target_ip  # Replace with your router/firewall IP address
 
 # Ping test
-ping_output = ping_host(target_ip)
-print("Ping Test:")
-print(ping_output)
+ping_output=$(ping_host "$target_ip")
+echo "Ping Test:"
+echo "$ping_output"
 
 # Traceroute test
-traceroute_output = traceroute_host(target_ip)
-print("Traceroute:")
-print(traceroute_output)
+traceroute_output=$(traceroute_host "$target_ip")
+echo "Traceroute:"
+echo "$traceroute_output"
 
 # Network Interfaces
-network_interfaces_output = get_network_interfaces()
-print("Network Interfaces:")
-print(network_interfaces_output)
+network_interfaces_output=$(get_network_interfaces)
+echo "Network Interfaces:"
+echo "$network_interfaces_output"
 
 # ARP Table
-arp_table_output = get_arp_table()
-print("ARP Table:")
-print(arp_table_output)
+arp_table_output=$(get_arp_table)
+echo "ARP Table:"
+echo "$arp_table_output"
 
 # IPERF Speed Test
-iperf_server_ip = input("Enter the IP address of the iperf server: ")
-iperf_output = iperf_speed_test(iperf_server_ip)
-print("IPERF Speed Test:")
-print(iperf_output)
+echo "Enter the IP address of the iperf server:"
+read -r iperf_server_ip
+iperf_output=$(iperf_speed_test "$iperf_server_ip")
+echo "IPERF Speed Test:"
+echo "$iperf_output"
 
 # Ping Virtual Clients
-router_ip = input("Enter the IP address of the router: ")
-virtual_clients = input("Enter a comma-separated list of virtual client IP addresses: ").split(',')
-ping_results = ping_virtual_clients(router_ip, virtual_clients)
-print("Ping Virtual Clients Results:")
-for client_ip, result in ping_results.items():
-    print(f"{client_ip}: {result.strip()}")
+echo "Enter the IP address of the router:"
+read -r router_ip
+echo "Enter a comma-separated list of virtual client IP addresses:"
+read -r -a virtual_clients
+ping_results=$(ping_virtual_clients "$router_ip" "${virtual_clients[@]}")
+echo "Ping Virtual Clients Results:"
+echo "$ping_results"
