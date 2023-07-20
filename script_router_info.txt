@@ -1,26 +1,5 @@
-import nmap
 import subprocess
 import platform
-
-def scan_network_devices(target_ip):
-    nm = nmap.PortScanner()
-    nm.scan(target_ip, arguments='-O')  # Port scanning removed
-    device_info = []
-
-    for host in nm.all_hosts():
-        if 'osclass' in nm[host]:
-            osclass = nm[host]['osclass'][0]
-            vendor = osclass.get('vendor', 'Unknown')
-            os_family = osclass.get('osfamily', 'Unknown')
-            os_gen = osclass.get('osgen', 'Unknown')
-            device_info.append({
-                'IP': host,
-                'Vendor': vendor,
-                'Operating System': os_family,
-                'OS Generation': os_gen
-            })
-
-    return device_info
 
 def execute_command(command):
     try:
@@ -74,18 +53,6 @@ def ping_virtual_clients(router_ip, virtual_clients):
 
 # Example usage
 target_ip = input('Enter an IP address:')  # Replace with your router/firewall IP address
-results = scan_network_devices(target_ip)
-
-if results:
-    print(f"Device Information for {target_ip}:")
-    for device in results:
-        print(f"IP: {device['IP']}")
-        print(f"Vendor: {device['Vendor']}")
-        print(f"Operating System: {device['Operating System']}")
-        print(f"OS Generation: {device['OS Generation']}")
-        print('---')
-else:
-    print("No devices found.")
 
 # Ping test
 ping_output = ping_host(target_ip)
