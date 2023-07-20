@@ -1,8 +1,8 @@
-#!/bin/bash
+#!/bin/sh
 
 # Function to echo and then "run" a command
 run_cmd() {
-    local command="$@"
+    command="$@"
     echo "Running command: $command"
 }
 
@@ -27,7 +27,7 @@ iperf_speed_test() {
 }
 
 ping_virtual_clients() {
-    local router_ip="$1"
+    router_ip="$1"
     shift
     for client_ip in "$@"; do
         run_cmd "ping -c 4 $client_ip"
