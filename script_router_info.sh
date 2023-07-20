@@ -1,55 +1,32 @@
-#!/bin/sh
+#!/bin/bash
 
 ping_host() {
-    if [ "$(uname)" = "Darwin" ]; then
-        ping -c 4 "$1"
-    else
-        ping -n 4 "$1"
-    fi
+    echo "Ping not supported in this environment."
 }
 
 traceroute_host() {
-    if [ "$(uname)" = "Darwin" ]; then
-        traceroute "$1"
-    else
-        traceroute -m 4 "$1"
-    fi
+    echo "Traceroute not supported in this environment."
 }
 
 get_network_interfaces() {
-    if [ "$(uname)" = "Darwin" ]; then
-        ifconfig
-    else
-        ipconfig
-    fi
+    echo "Network interfaces not available in this environment."
 }
 
 get_arp_table() {
-    if [ "$(uname)" = "Darwin" ]; then
-        arp -a
-    else
-        arp
-    fi
+    echo "ARP table not available in this environment."
 }
 
 iperf_speed_test() {
-    iperf3 -R -c "$1" -P 16
+    echo "IPERF speed test not supported in this environment."
 }
 
 ping_virtual_clients() {
-    router_ip="$1"
-    shift
-    ping_results=""
-    for client_ip in "$@"; do
-        ping_output=$(ping_host "$client_ip")
-        ping_results="${ping_results}\n${client_ip}: ${ping_output}"
-    done
-    echo "$ping_results"
+    echo "Ping virtual clients not supported in this environment."
 }
 
 # Example usage
 echo "Enter an IP address:" 
-read -r target_ip  # Replace with your router/firewall IP address
+read -r target_ip
 
 # Ping test
 ping_output=$(ping_host "$target_ip")
@@ -72,17 +49,7 @@ echo "ARP Table:"
 echo "$arp_table_output"
 
 # IPERF Speed Test
-echo "Enter the IP address of the iperf server:"
-read -r iperf_server_ip
-iperf_output=$(iperf_speed_test "$iperf_server_ip")
-echo "IPERF Speed Test:"
-echo "$iperf_output"
+echo "IPERF speed test not supported in this environment."
 
 # Ping Virtual Clients
-echo "Enter the IP address of the router:"
-read -r router_ip
-echo "Enter a comma-separated list of virtual client IP addresses:"
-read -r -a virtual_clients
-ping_results=$(ping_virtual_clients "$router_ip" "${virtual_clients[@]}")
-echo "Ping Virtual Clients Results:"
-echo "$ping_results"
+echo "Ping virtual clients not supported in this environment."
