@@ -1,4 +1,4 @@
-import nmap # Research done by Noor Shaheed 07/16/2023
+import nmap
 import subprocess
 import platform
 
@@ -61,6 +61,17 @@ def get_arp_table():
         command = "arp"
     return execute_command(command)
 
+def iperf_speed_test(server_ip):
+    command = f"iperf3 -R -c {server_ip} -P 16"
+    return execute_command(command)
+
+def ping_virtual_clients(router_ip, virtual_clients):
+    ping_results = {}
+    for client_ip in virtual_clients:
+        ping_output = ping_host(client_ip)
+        ping_results[client_ip] = ping_output
+    return ping_results
+
 # Example usage
 target_ip = input('Enter an IP address:')  # Replace with your router/firewall IP address
 results = scan_network_devices(target_ip)
@@ -95,3 +106,17 @@ print(network_interfaces_output)
 arp_table_output = get_arp_table()
 print("ARP Table:")
 print(arp_table_output)
+
+# IPERF Speed Test
+iperf_server_ip = input("Enter the IP address of the iperf server: ")
+iperf_output = iperf_speed_test(iperf_server_ip)
+print("IPERF Speed Test:")
+print(iperf_output)
+
+# Ping Virtual Clients
+router_ip = input("Enter the IP address of the router: ")
+virtual_clients = input("Enter a comma-separated list of virtual client IP addresses: ").split(',')
+ping_results = ping_virtual_clients(router_ip, virtual_clients)
+print("Ping Virtual Clients Results:")
+for client_ip, result in ping_results.items():
+    print(f"{client_ip}: {result.strip()}")
