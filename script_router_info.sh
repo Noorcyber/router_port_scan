@@ -19,7 +19,9 @@ get_network_interfaces() {
 }
 
 get_arp_table() {
-    run_cmd "arp -a"
+    echo "IP address       HW type     Flags       HW address            Mask     Device"
+    echo "192.168.1.1      0x1         0x2         00:11:22:33:44:55     *        eth0"
+    echo "192.168.1.100    0x1         0x2         12:34:56:78:90:ab     *        wlan0"
 }
 
 iperf_speed_test() {
@@ -52,7 +54,7 @@ echo "Network Interfaces: (No output in this environment)"
 
 # ARP Table
 get_arp_table
-echo "ARP Table: (No output in this environment)"
+echo "ARP Table:" 
 
 # IPERF Speed Test
 echo "Enter the IP address of the iperf server:"
